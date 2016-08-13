@@ -65,4 +65,18 @@ pcawrap <- function(xx,respvar=c(),predvars,drop=c(),prep=nprep,pca=c('sphpca','
     frminput <- formula(paste0(respvar,'~',paste0(predvars,collapse='+')));
     fpca(frminput,data=xx,...);
   } else if(pca=='sphpca') sphpca(xx,...);
+}
+
+nprep <- function(xx,data.frame=T){
+  # coerce xx to numeric via data.matrix, scale/center it
+  warn <- getOption('warn'); options(warn=-1);
+  xxinput <- scale(data.matrix(xx));
+  # drop the non-pairwise-correlatable columns
+  okaynames <- apply(cor(xxinput,use='pairwise'),2,function(xx) !all(is.na(xx)));
+  options(warn=warn);
+  # keeping only the okaynames, impute missing values 
+  require(e1071);
+  xxinput <- impute(xxinput[,okaynames]);
+  if(data.frame) data.frame(xxinput) else xxinput;
+}
 
