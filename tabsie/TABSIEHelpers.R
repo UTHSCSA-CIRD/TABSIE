@@ -37,7 +37,7 @@ fpSummary <- function(xx){
   out;
 }
 
-# A wrapper function around pca that makes it mor tolerant of input formats
+# A wrapper function around pca that makes it more tolerant of input formats
 pcawrap <- function(xx,respvar=c(),predvars,drop=c(),prep=nprep,pca=c('sphpca','fpca'),...){
   require(psy);
   # xx      : A matrix or data.frame
