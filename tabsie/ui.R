@@ -74,7 +74,8 @@ shinyUI(
                                              selectInput("pointColor", "Color Value", c("No color"), selected = "No color"),
                                              selectInput("pointShape", "Shape Value", c("No shape"), selected = "No shape")
                                              
-                         ))#end div point options
+                         )),#end div point options
+                         actionButton("testLog", "Save Log")
                        )
               )#end advanced tab
             )#end tab panel

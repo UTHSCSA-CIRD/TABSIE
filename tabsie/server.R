@@ -65,7 +65,31 @@ shinyServer(
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
 ####### LOGGER #############################
-    logger <- reactiveValues(log=list());
+    logger <- reactiveValues(log=list())
+    
+    # Whenever ANYTHING happens, a log entry is created
+    observe({
+      # reactiveValuesToList takes a reactiveValues object
+      # and turns it into a list which is immediately turned
+      # into a data.frame and saved in local scope.
+      logentry <- data.frame(reactiveValuesToList(input))
+      # Add a timestamp
+      logentry$ts <- date()
+      # Insert it into the growing list of one-row data.frames
+      # Which has to be a reactiveValue so that it will not be
+      # static at runtime.
+      isolate(logger$log[[length(logger$log)+1]]<-logentry)
+    });
+    
+    observeEvent(input$testLog,{
+      # rbindAllCols is a function defined in TABSIEHelpers.R
+      # it turns all those single-row data.frames into one
+      # data.frame, and smartly sorts out missing columns
+      logtable <- isolate(do.call(rbindAllCols,logger$log))
+      # Now what? I guess shove it into a Google spreadsheet
+      # or some other cloud storage.
+      browser()
+    })
     
 ####### TITLE VIEWER  ######################
     output$TitleString <-renderUI({

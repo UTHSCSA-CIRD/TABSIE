@@ -77,3 +77,16 @@ nprep <- function(xx,data.frame=T){
   if(data.frame) data.frame(xxinput) else xxinput;
 }
 
+rbindAllCols <- function(...){
+  # take data-frames with possibly differently-named columns and 
+  # rbind them anyway so that the resulting data.frame has the union
+  # of the colums (but same-named columns will aligned with each other)
+  dfs <- list(...)
+  # this is the union 
+  allcs <- unique(unlist(sapply(dfs,names)))
+  dfs <- lapply(dfs,function(xx) {
+    xx[,setdiff(allcs,names(xx))]<-NA
+    xx[,allcs]
+    })
+  do.call(rbind,dfs)
+}
