@@ -14,11 +14,11 @@ shinyServer(
     #The data package now reads in:
       #serverData - a list of data frames. Data Frame one should be the default. All data frames
                   ## should have the SAME columns. They should merely be subsets of the original.
-      #serverDataDic - A list of definitions ofr the filters: E.g. c("Not filtered", "Filtered)
+      #serverDataDic - A list of definitions ofr the filters: E.g. c("Not filtered", "Filtered")
       #serverHash - the hash function for the server authentication. If you don't want an 
                   ## authentication screen make this = ""
     #REPLACED loading functions
-        load("survSave.rdata")
+    if(file.exists('survSave.rdata')) load("survSave.rdata")
     ##Since we have old .rdata files and we're putting a lot more "assumptions" on what the user will have in the 
     ##.rdata file I'll do some checks to make sure that the 3 expected files are either there or
     ##can be faked. (i.e. the only one that HAS to be there is serverData and it needs at least one data frame.)
