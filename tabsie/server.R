@@ -64,6 +64,8 @@ shinyServer(
     }
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
+####### LOGGER #############################
+    logger <- reactiveValues(log=list());
     
 ####### TITLE VIEWER  ######################
     output$TitleString <-renderUI({
@@ -255,18 +257,24 @@ shinyServer(
     output$freqTable <- renderTable({#validation done before this is called, no need to repeat
       if (!valAuth) return;#break processing of not authorized.
       pdata = getpData(input$filter, serverDataDic, serverData)
-      addmargins(table(pdata[,c(input$xVal,input$yVal)]))
-    })
+      if(input$xVal==input$yVal) {
+        data.frame(Counts=cbind(summary(pdata[,input$xVal])))
+      } else {
+        as.data.frame.matrix(addmargins(table(pdata[,c(input$xVal,input$yVal)])))
+      }
+    },rownames=T)
     
     output$summaryTable <- renderTable({
       if (!valAuth) return;#break processing of not authorized.
       pdata = getpData(input$filter, serverDataDic, serverData)
       if(input$xVal %in% valsFactor){
-        as.table(sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary))
+        sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary)
+        #as.table(sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary))
       }else{
-        as.table(sapply(pdata[,c(input$xVal,input$yVal)],fpSummary))
+        sapply(pdata[,c(input$xVal,input$yVal)],fpSummary)
+        #as.table(sapply(pdata[,c(input$xVal,input$yVal)],fpSummary))
       }
-    })
+    },rownames=T)
     
     output$lmTable <- renderTable({
       if (!valAuth) return;#break processing of not authorized.
