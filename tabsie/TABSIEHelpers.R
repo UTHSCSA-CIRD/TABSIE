@@ -90,3 +90,33 @@ rbindAllCols <- function(...){
     })
   do.call(rbind,dfs)
 }
+
+make_gs <- function(input=rbind(1:col_extent,1:col_extent),title='defaultlog'
+                    ,ws_title='S1',col_extent=200, row_extent=10000
+                    ,savefile='gs'){
+  # everything you need to create credentials for googlesheets
+  # Note: requires a browser to be present; will prompt you to
+  # log into Google and give permissions
+  # move the resulting rdata file to where app is to be deployed, and load it
+  # You will get list object named gsout
+  # Do the following: 
+  # gs_auth(gsout$token,cache=F)
+  # Now you can do:
+  # gs_add_row(gsout$gskey, input = c(1,2,3))
+  gsout <- list();
+  # create token
+  token <- gs_auth(cache = F);
+  # create new gs spreadsheet
+  gsfile <- gs_new(title=title,ws_title = ws_title
+                  ,col_extent = col_extent,input=input);
+  gskey <- gs_key(gsfile$sheet_key,lookup=F,visibility = 'private');
+  gs_add_row(ss=gskey,ws=ws_title,input=input[1]);
+  # save the token
+  saveRDS(token,file=paste0(savefile,'.rds'));
+  # save the token and handle
+  gsout <- list(token=token,gsfile=gsfile,gskey=gskey);
+  save(gsout,file=paste0(savefile,'.rdata'));
+  # return token and handle
+  invisible(gsout);
+  #gs_add_row(gsnew,input=c(baz[3,]))
+}
