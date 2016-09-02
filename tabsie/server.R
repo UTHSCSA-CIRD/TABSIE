@@ -5,6 +5,7 @@ require(shinyjs)
 require(e1071);
 require(psy);
 require(digest);
+require(googlesheets);
 source("TABSIEHelpers.R")
 source("graphHelper.R")
 
@@ -19,6 +20,8 @@ shinyServer(
                   ## authentication screen make this = ""
     #REPLACED loading functions
     if(file.exists('survSave.rdata')) load("survSave.rdata")
+    # Authentication data for googlesheets, if any
+    if(file.exists('gs.rdata')) load(gs.rdata)
     ##Since we have old .rdata files and we're putting a lot more "assumptions" on what the user will have in the 
     ##.rdata file I'll do some checks to make sure that the 3 expected files are either there or
     ##can be faked. (i.e. the only one that HAS to be there is serverData and it needs at least one data frame.)
@@ -74,7 +77,7 @@ shinyServer(
       # into a data.frame and saved in local scope.
       logentry <- data.frame(reactiveValuesToList(input))
       # Add a timestamp
-      logentry$ts <- date()
+      logentry$aaats <- date()
       # Insert it into the growing list of one-row data.frames
       # Which has to be a reactiveValue so that it will not be
       # static at runtime.
@@ -86,8 +89,17 @@ shinyServer(
       # it turns all those single-row data.frames into one
       # data.frame, and smartly sorts out missing columns
       logtable <- isolate(do.call(rbindAllCols,logger$log))
-      # Now what? I guess shove it into a Google spreadsheet
-      # or some other cloud storage.
+      if(exists(gsout)){
+        # authenticate
+        gs_auth(gsout$token,cache=F)
+        # add rows
+        # too slow, though, need to see if gs_edit_cells any better
+        apply(logtable,1,function(xx) gs_add_row(gsout$gskey,input=xx))
+        # but how to find where to add them? What about this:
+        lastrw <- gs_add_row(gsout$gskey,input=1)$ws$row_extent
+        # ...ah. Prehaps $ws$row_extent is the last occupied row PLUS
+        # that workbook's row_extent
+      }
       browser()
     })
     

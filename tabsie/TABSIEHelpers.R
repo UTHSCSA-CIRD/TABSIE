@@ -83,7 +83,7 @@ rbindAllCols <- function(...){
   # of the colums (but same-named columns will aligned with each other)
   dfs <- list(...)
   # this is the union 
-  allcs <- unique(unlist(sapply(dfs,names)))
+  allcs <- sort(unique(unlist(sapply(dfs,names))))
   dfs <- lapply(dfs,function(xx) {
     xx[,setdiff(allcs,names(xx))]<-NA
     xx[,allcs]
@@ -110,6 +110,7 @@ make_gs <- function(input=rbind(1:col_extent,1:col_extent),title='defaultlog'
   gsfile <- gs_new(title=title,ws_title = ws_title
                   ,col_extent = col_extent,input=input);
   gskey <- gs_key(gsfile$sheet_key,lookup=F,visibility = 'private');
+  # not completely sure, but think this is needed to "break in" the sheet"
   gs_add_row(ss=gskey,ws=ws_title,input=input[1]);
   # save the token
   saveRDS(token,file=paste0(savefile,'.rds'));
