@@ -101,6 +101,9 @@ shinyServer(
         # that workbook's row_extent
         # Yeah, basically with default options, row_extent is 1000+xx+yy where
         # xx is the actual last row and yy how many rows it was inited with
+        # Meh, might have to have a spot on sheet to save last row max
+        # get it and add to that + 1, then add current nrows() to it and 
+        # update by that value
       }
       browser()
     })
