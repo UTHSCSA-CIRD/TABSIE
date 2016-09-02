@@ -99,6 +99,8 @@ shinyServer(
         lastrw <- gs_add_row(gsout$gskey,input=1)$ws$row_extent
         # ...ah. Prehaps $ws$row_extent is the last occupied row PLUS
         # that workbook's row_extent
+        # Yeah, basically with default options, row_extent is 1000+xx+yy where
+        # xx is the actual last row and yy how many rows it was inited with
       }
       browser()
     })

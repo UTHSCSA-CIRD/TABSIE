@@ -92,8 +92,7 @@ rbindAllCols <- function(...){
 }
 
 make_gs <- function(input=rbind(1:col_extent,1:col_extent),title='defaultlog'
-                    ,ws_title='S1',col_extent=200, row_extent=10000
-                    ,savefile='gs'){
+                    ,ws_title='S1',col_extent=200,savefile='gs'){
   # everything you need to create credentials for googlesheets
   # Note: requires a browser to be present; will prompt you to
   # log into Google and give permissions
