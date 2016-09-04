@@ -118,6 +118,8 @@ shinyServer(
     }
     
     endsession <- session$onSessionEnded(writeLog)
+    # someday soon maybe:
+    #options(error=function(){browser()})
     
 ####### TITLE VIEWER  ######################
     output$TitleString <-renderUI({
