@@ -86,6 +86,12 @@ shinyServer(
       updateSliderInput(session, "xLabRotation", value = 0)
       updateSliderInput(session, "xLabHeight", value = 0)
     })
+######## DIV BOX CONTROL for IDEAS and BUGS #################
+    observe({
+      shinyjs::onclick("toggleIdea",toggle(id="ideaDiv",anim=T))
+      shinyjs::onclick("toggleBug",toggle(id="bugDiv",anim=T))
+    })
+
 ######## DIV BOX CONTROL for ADVANCED PANEL #################
     observe({
       if (!valAuth) return;#break processing of not authorized.

@@ -17,7 +17,7 @@ shinyUI(
             sidebarPanel(
   ######################SideBar Graph#######################################################
   ######### BASIC PANEL- Sidebar Graph #####################################################################
-            textInput("userName", "Name", value = "", placeholder = "Your name"),
+            #textInput("userName", "Name", value = "", placeholder = "Your name"),
             textInput("userEmail", "Email", value= "", placeholder = "Your email address"),
             tabsetPanel(
               tabPanel("Basic",
@@ -86,8 +86,14 @@ shinyUI(
               bsAlert("graphError"),
               plotOutput("visPlot"),
               a(id="toggleIdea", "Jot down notes and ideas for publication", href ="#"),
+                shinyjs::hidden(div(id="ideaDiv",tags$textarea(id="ideaInput","",cols=60,value="",
+                    placeholder="Record any ideas for your manuscript that are related to the currently visible data. We recommend putting your email address at the top of the left panel of this page."))),
               br(),
               a(id="toggleBug", "Report a bug, problem, or question", href="#"),
+                shinyjs::hidden(div(id="bugDiv",tags$textarea(id="bugInput","",cols=60,value="",
+                    placeholder="Report a bug or ask a question. If you want us to be able to follow
+ up with you, please make sure you put your email address at the top of the left panel of this page"
+))),
               uiOutput("summaryRegion")#this makes it easier to adaptively display the summary
             )#end bargraph mainPanel
           )),#end sidebarLayout/TabPanel BARGRAPH
