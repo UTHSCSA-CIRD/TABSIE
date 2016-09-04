@@ -21,7 +21,9 @@ shinyServer(
     #REPLACED loading functions
     if(file.exists('survSave.rdata')) load("survSave.rdata")
     # Authentication data for googlesheets, if any
-    if(file.exists('gs.rdata')) load(gs.rdata)
+    # If you don't want to log, then don't put a gs.rdata file
+    # into the tabsie directory
+    if(file.exists('gs.rdata')) load('gs.rdata')
     ##Since we have old .rdata files and we're putting a lot more "assumptions" on what the user will have in the 
     ##.rdata file I'll do some checks to make sure that the 3 expected files are either there or
     ##can be faked. (i.e. the only one that HAS to be there is serverData and it needs at least one data frame.)
@@ -68,6 +70,7 @@ shinyServer(
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
 ####### LOGGER #############################
+    sessid <- as.numeric(Sys.time())*1e8
     logger <- reactiveValues(log=list())
     
     # Whenever ANYTHING happens, a log entry is created
@@ -75,9 +78,10 @@ shinyServer(
       # reactiveValuesToList takes a reactiveValues object
       # and turns it into a list which is immediately turned
       # into a data.frame and saved in local scope.
+      if(!exists('gsout')) return()
       logentry <- data.frame(reactiveValuesToList(input))
       # Add a timestamp
-      logentry$aaats <- date()
+      logentry$a00_ts <- Sys.time()
       # Insert it into the growing list of one-row data.frames
       # Which has to be a reactiveValue so that it will not be
       # static at runtime.
@@ -88,23 +92,25 @@ shinyServer(
       # rbindAllCols is a function defined in TABSIEHelpers.R
       # it turns all those single-row data.frames into one
       # data.frame, and smartly sorts out missing columns
-      logtable <- isolate(do.call(rbindAllCols,logger$log))
-      if(exists(gsout)){
+      if(exists('gsout')){
+        logtable <- isolate(do.call(rbindAllCols,logger$log))
+        # each session has its own ID, just in case
+        logtable$session <- sessid
         # authenticate
         gs_auth(gsout$token,cache=F)
-        # add rows
-        # too slow, though, need to see if gs_edit_cells any better
-        apply(logtable,1,function(xx) gs_add_row(gsout$gskey,input=xx))
-        # but how to find where to add them? What about this:
-        lastrw <- gs_add_row(gsout$gskey,input=1)$ws$row_extent
-        # ...ah. Prehaps $ws$row_extent is the last occupied row PLUS
-        # that workbook's row_extent
-        # Yeah, basically with default options, row_extent is 1000+xx+yy where
-        # xx is the actual last row and yy how many rows it was inited with
-        # Meh, might have to have a spot on sheet to save last row max
-        # get it and add to that + 1, then add current nrows() to it and 
-        # update by that value
+        # create a fresh sheet handle, gsh
+        gsh<-gs_title(gsout$gsfile$sheet_title)
+        # find out what row to add (yes, really)
+        rows<-gs_read(gsh,col_names='',range='A1:A1')[[1]]
+        # immediately update, to reduce chance of collisions
+        # note how we keep refreshing the gsh handle each time we write
+        gsh<-gs_edit_cells(gsh,"S1",input=nrow(logtable)+rows+2,anchor='A1')
+        # add log data. Note that header row automatically is added
+        gsh<-gs_edit_cells(gsh,"S1",input=logtable,anchor=paste0('A',rows))
+        # log written! Empty out logger
+        isolate(logger$log<-list())
       }
+      # One more thing to do: make this into an end-of-session object
       browser()
     })
     
