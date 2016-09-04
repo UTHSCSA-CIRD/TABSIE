@@ -88,11 +88,15 @@ shinyServer(
       isolate(logger$log[[length(logger$log)+1]]<-logentry)
     });
     
-    observeEvent(input$testLog,{
-      # rbindAllCols is a function defined in TABSIEHelpers.R
-      # it turns all those single-row data.frames into one
-      # data.frame, and smartly sorts out missing columns
+    writeLog <- function(){
+      # This function runs after the user closes their browser
+      # window. It rbinds all the log entries collected during
+      # the session and sends them off to Google Docs, (if 
+      # a valid gsout object if found in the environment).
       if(exists('gsout')){
+        # rbindAllCols is a function defined in TABSIEHelpers.R
+        # it turns all those single-row data.frames into one
+        # data.frame, and smartly sorts out missing columns
         logtable <- isolate(do.call(rbindAllCols,logger$log))
         # each session has its own ID, just in case
         logtable$session <- sessid
@@ -110,9 +114,10 @@ shinyServer(
         # log written! Empty out logger
         isolate(logger$log<-list())
       }
-      # One more thing to do: make this into an end-of-session object
-      browser()
-    })
+      #browser()
+    }
+    
+    endsession <- session$onSessionEnded(writeLog)
     
 ####### TITLE VIEWER  ######################
     output$TitleString <-renderUI({
