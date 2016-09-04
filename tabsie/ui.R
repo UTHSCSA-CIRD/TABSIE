@@ -17,6 +17,8 @@ shinyUI(
             sidebarPanel(
   ######################SideBar Graph#######################################################
   ######### BASIC PANEL- Sidebar Graph #####################################################################
+            textInput("userName", "Name", value = "", placeholder = "Your name"),
+            textInput("userEmail", "Email", value= "", placeholder = "Your email address"),
             tabsetPanel(
               tabPanel("Basic",
                        verticalLayout(
@@ -83,6 +85,9 @@ shinyUI(
             mainPanel(
               bsAlert("graphError"),
               plotOutput("visPlot"),
+              a(id="toggleIdea", "Jot down notes and ideas for publication", href ="#"),
+              br(),
+              a(id="toggleBug", "Report a bug, problem, or question", href="#"),
               uiOutput("summaryRegion")#this makes it easier to adaptively display the summary
             )#end bargraph mainPanel
           )),#end sidebarLayout/TabPanel BARGRAPH
