@@ -83,8 +83,6 @@ shinyUI(
             mainPanel(
               bsAlert("graphError"),
               plotOutput("visPlot"),
-              # ugh, hate how shiny forces a line-break between the label and the input field
-              # TODO: figure out how to hack around that behavior
               shinyjs::hidden(div(id='emailDiv', class='form-inline',
                                   textInput("userEmail", "Your Email:", value= "",
                                             placeholder = "Please enter your email"))), # end of email field
