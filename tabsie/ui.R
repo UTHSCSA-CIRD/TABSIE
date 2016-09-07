@@ -98,7 +98,7 @@ shinyUI(
                                                )), # end bug submission div
               div(id='emailDiv', class='form-inline',
                                   textInput("userEmail", "Your Email:", value= "",
-                                            placeholder = "Please enter your email")), # end of email div
+                                            placeholder = "Please enter your email to we know whom to follow up with")), # end of email div
               hr(),
               uiOutput("summaryRegion")#this makes it easier to adaptively display the summary
             )#end bargraph mainPanel
