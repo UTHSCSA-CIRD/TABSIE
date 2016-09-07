@@ -95,7 +95,7 @@ shinyUI(
               div(style="display:inline-block",
               checkboxInput("focusedPCA", "Focused PCA Plot?")),
               div(style="display:inline-block",
-              HTML("<a herf='#' id='btn-2' class='btn btn-primary btn-xs' data-toggle='popover' data-placement= 'auto bottom' title='Focused PCA Plot' data-content='A <b>focused</b> PCA allows you to create a constelation map that revolves around a specific point. The closer a point is to the center, the more closely the column it 
+              HTML("<a href='#' id='btn-2' class='btn btn-primary btn-xs' data-toggle='popover' data-placement= 'auto bottom' title='Focused PCA Plot' data-content='A <b>focused</b> PCA allows you to create a constelation map that revolves around a specific point. The closer a point is to the center, the more closely the column it 
               represents is correlated with the response variable in the center.'>?</a>")),
               shinyjs::hidden(div(id="focusedPCADiv",
                                   hr(),
