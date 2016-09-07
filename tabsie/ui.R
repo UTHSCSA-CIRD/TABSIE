@@ -82,7 +82,24 @@ shinyUI(
   ######### MAIN PANEL- Graph #####################################################################
             mainPanel(
               bsAlert("graphError"),
-              plotOutput("visPlot"),
+              plotOutput("visPlot"),hr(),
+              a(id="toggleIdea", "Jot down notes and ideas for publication", href ="#"),
+              shinyjs::hidden(div(id="ideaDiv",
+                                  tags$textarea(id="ideaInput","",cols=60,value="",
+                                                placeholder="Record any ideas for your manuscript that are related to the currently visible data. We recommend putting your email address at the top of the left panel of this page."),
+                                  br(),actionButton("submitIdea", "Submit", class="btn btn-secondary btn-xs")
+                                               )), # end idea submission div
+              br(),
+              a(id="toggleBug", "Report a bug, problem, or question", href="#"),
+              shinyjs::hidden(div(id="bugDiv",
+                                  tags$textarea(id="bugInput","",cols=60,value="",
+                                                placeholder="Report a bug or ask a question. If you want us to be able to follow up with you, please make sure you put your email address at the top of the left panel of this page"),
+                                  br(),actionButton("submitBug", "Submit", class="btn btn-secondary btn-xs")
+                                               )), # end bug submission div
+              div(id='emailDiv', class='form-inline',
+                                  textInput("userEmail", "Your Email:", value= "",
+                                            placeholder = "Please enter your email to we know whom to follow up with")), # end of email div
+              hr(),
               uiOutput("summaryRegion")#this makes it easier to adaptively display the summary
             )#end bargraph mainPanel
           )),#end sidebarLayout/TabPanel BARGRAPH
