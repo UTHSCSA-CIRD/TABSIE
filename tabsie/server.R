@@ -134,7 +134,7 @@ shinyServer(
     })
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
-      if (!valAuth) return;#break processing of not authorized.
+      #if (!valAuth) return;#break processing of not authorized.
       updateTextInput(session, "titleField", value = "")
       updateTextInput(session, "xLab", value = "")
       updateTextInput(session, "yLab", value = "")
@@ -142,9 +142,42 @@ shinyServer(
       updateSliderInput(session, "xLabRotation", value = 0)
       updateSliderInput(session, "xLabHeight", value = 0)
     })
+######## DIV BOX CONTROL for IDEAS and BUGS #################
+    observe({
+      #if (!valAuth) return();#break processing of not authorized.
+      shinyjs::onclick("toggleIdea",toggle(id="ideaDiv",anim=T))
+      shinyjs::onclick("toggleBug",toggle(id="bugDiv",anim=T))
+    })
+
+    # observe({
+    #   #if (!valAuth) return();#break processing of not authorized.
+    #   needIdea <- need(input$ideaInput,F);
+    #   needBug <- need(input$bugInput,F);
+    #   if(length(c(needIdea,needBug))<=1) show('emailDiv',anim=T);
+    #   #browser();
+    #   if(is.null(needIdea)) show('submitIdea') else hide('submitIdea');
+    #   if(is.null(needBug)) show('submitBug') else hide('submitBug');
+    # })
+    
+    # Actually, for email to show and hide all the time, will need a new
+    # reactiveValues object to aggregate the toggled state of the idea and
+    # bug divs. This is lower priority than the other stuff, so will just keep
+    # Email static and always visible for now.
+    observeEvent(input$submitIdea,{
+      #if (!valAuth) return();#break processing of not authorized.
+      updateTextInput(session,'ideaInput', value='');
+      hide(id="ideaDiv",anim=T);
+    })
+    
+    observeEvent(input$submitBug,{
+      #if (!valAuth) return();#break processing of not authorized.
+      updateTextInput(session,'bugInput', value='');
+      hide(id="bugDiv",anim=T);
+    })
+    
 ######## DIV BOX CONTROL for ADVANCED PANEL #################
     observe({
-      if (!valAuth) return;#break processing of not authorized.
+      #if (!valAuth) return();#break processing of not authorized.
       validate(
         need(input$xVal, "")
       )
