@@ -92,7 +92,7 @@ rbindAllCols <- function(...){
 }
 
 make_gs <- function(input=rbind(1:col_extent,1:col_extent),title='defaultlog'
-                    ,ws_title='S1',col_extent=200,savefile='gs'){
+                    ,ws_title=c('S1','S2'),col_extent=200,savefile='gs'){
   # everything you need to create credentials for googlesheets
   # Note: requires a browser to be present; will prompt you to
   # log into Google and give permissions
@@ -106,11 +106,18 @@ make_gs <- function(input=rbind(1:col_extent,1:col_extent),title='defaultlog'
   # create token
   token <- gs_auth(cache = F);
   # create new gs spreadsheet
-  gsfile <- gs_new(title=title,ws_title = ws_title
+  gsfile <- gs_new(title=title,ws_title = ws_title[1]
                   ,col_extent = col_extent,input=input);
   gskey <- gs_key(gsfile$sheet_key,lookup=F,visibility = 'private');
   # not completely sure, but think this is needed to "break in" the sheet"
-  gs_add_row(ss=gskey,ws=ws_title,input=input[1]);
+  # Also, we will be using the first cell of the second sheet to keep track
+  # of which row should be where data gets appended next (though right now
+  # we are using the first cell of the first sheet because, learning curve
+  if(length(ws_title)>1){
+    for(ii in ws_title[-1]) gskey <- gs_ws_new(ss=gskey,ws=ii);
+    gskey<-gs_edit_cells(gskey,ws=ii,anchor='A1',input=1);
+  }
+  gskey <- gs_add_row(ss=gskey,ws=ws_title[1],input=1);
   # save the token
   saveRDS(token,file=paste0(savefile,'.rds'));
   # save the token and handle
