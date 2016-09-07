@@ -14,11 +14,11 @@ shinyServer(
     #The data package now reads in:
       #serverData - a list of data frames. Data Frame one should be the default. All data frames
                   ## should have the SAME columns. They should merely be subsets of the original.
-      #serverDataDic - A list of definitions ofr the filters: E.g. c("Not filtered", "Filtered)
+      #serverDataDic - A list of definitions ofr the filters: E.g. c("Not filtered", "Filtered")
       #serverHash - the hash function for the server authentication. If you don't want an 
                   ## authentication screen make this = ""
     #REPLACED loading functions
-        load("survSave.rdata")
+    if(file.exists('survSave.rdata')) load("survSave.rdata")
     ##Since we have old .rdata files and we're putting a lot more "assumptions" on what the user will have in the 
     ##.rdata file I'll do some checks to make sure that the 3 expected files are either there or
     ##can be faked. (i.e. the only one that HAS to be there is serverData and it needs at least one data frame.)
@@ -64,6 +64,8 @@ shinyServer(
     }
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
+####### LOGGER #############################
+    logger <- reactiveValues(log=list());
     
 ####### TITLE VIEWER  ######################
     output$TitleString <-renderUI({
@@ -255,18 +257,24 @@ shinyServer(
     output$freqTable <- renderTable({#validation done before this is called, no need to repeat
       if (!valAuth) return;#break processing of not authorized.
       pdata = getpData(input$filter, serverDataDic, serverData)
-      addmargins(table(pdata[,c(input$xVal,input$yVal)]))
-    })
+      if(input$xVal==input$yVal) {
+        data.frame(Counts=cbind(summary(pdata[,input$xVal])))
+      } else {
+        as.data.frame.matrix(addmargins(table(pdata[,c(input$xVal,input$yVal)])))
+      }
+    },rownames=T)
     
     output$summaryTable <- renderTable({
       if (!valAuth) return;#break processing of not authorized.
       pdata = getpData(input$filter, serverDataDic, serverData)
       if(input$xVal %in% valsFactor){
-        as.table(sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary))
+        sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary)
+        #as.table(sapply(split(pdata[,input$yVal],pdata[,input$xVal]),fpSummary))
       }else{
-        as.table(sapply(pdata[,c(input$xVal,input$yVal)],fpSummary))
+        sapply(pdata[,c(input$xVal,input$yVal)],fpSummary)
+        #as.table(sapply(pdata[,c(input$xVal,input$yVal)],fpSummary))
       }
-    })
+    },rownames=T)
     
     output$lmTable <- renderTable({
       if (!valAuth) return;#break processing of not authorized.
