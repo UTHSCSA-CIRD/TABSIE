@@ -80,7 +80,7 @@ shinyServer(
     })
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
-      if (!valAuth) return;#break processing of not authorized.
+      #if (!valAuth) return;#break processing of not authorized.
       updateTextInput(session, "titleField", value = "")
       updateTextInput(session, "xLab", value = "")
       updateTextInput(session, "yLab", value = "")
@@ -90,13 +90,38 @@ shinyServer(
     })
 ######## DIV BOX CONTROL for IDEAS and BUGS #################
     observe({
+      #if (!valAuth) return();#break processing of not authorized.
       shinyjs::onclick("toggleIdea",toggle(id="ideaDiv",anim=T))
       shinyjs::onclick("toggleBug",toggle(id="bugDiv",anim=T))
     })
 
+    observe({
+      #if (!valAuth) return();#break processing of not authorized.
+      needIdea <- need(input$ideaInput,F);
+      needBug <- need(input$bugInput,F);
+      if(length(c(needIdea,needBug))<=1) show('userEmail',anim=T);
+      #browser();
+      if(is.null(needIdea)) show('submitIdea') else hide('submitIdea');
+      if(is.null(needBug)) show('submitBug') else hide('submitBug');
+    })
+    
+    observeEvent(input$submitIdea,{
+      #if (!valAuth) return();#break processing of not authorized.
+      updateTextInput(session,'ideaInput', value='');
+      hide('submitIdea');
+      hide(id="ideaDiv",anim=T);
+    })
+    
+    observeEvent(input$submitBug,{
+      #if (!valAuth) return();#break processing of not authorized.
+      updateTextInput(session,'bugInput', value='');
+      hide('submitBug');
+      hide(id="bugDiv",anim=T);
+    })
+    
 ######## DIV BOX CONTROL for ADVANCED PANEL #################
     observe({
-      if (!valAuth) return;#break processing of not authorized.
+      #if (!valAuth) return();#break processing of not authorized.
       validate(
         need(input$xVal, "")
       )
