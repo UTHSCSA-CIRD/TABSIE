@@ -99,7 +99,7 @@ shinyServer(
       #if (!valAuth) return();#break processing of not authorized.
       needIdea <- need(input$ideaInput,F);
       needBug <- need(input$bugInput,F);
-      if(length(c(needIdea,needBug))<=1) show('userEmail',anim=T);
+      if(length(c(needIdea,needBug))<=1) show('emailDiv',anim=T);
       #browser();
       if(is.null(needIdea)) show('submitIdea') else hide('submitIdea');
       if(is.null(needBug)) show('submitBug') else hide('submitBug');
