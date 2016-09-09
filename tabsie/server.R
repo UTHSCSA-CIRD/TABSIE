@@ -5,6 +5,7 @@ require(shinyjs)
 require(e1071);
 require(psy);
 require(digest);
+require(googlesheets);
 source("TABSIEHelpers.R")
 source("graphHelper.R")
 
@@ -19,6 +20,10 @@ shinyServer(
                   ## authentication screen make this = ""
     #REPLACED loading functions
     if(file.exists('survSave.rdata')) load("survSave.rdata")
+    # Authentication data for googlesheets, if any
+    # If you don't want to log, then don't put a gs.rdata file
+    # into the tabsie directory
+    if(file.exists('gs.rdata')) load('gs.rdata')
     ##Since we have old .rdata files and we're putting a lot more "assumptions" on what the user will have in the 
     ##.rdata file I'll do some checks to make sure that the 3 expected files are either there or
     ##can be faked. (i.e. the only one that HAS to be there is serverData and it needs at least one data frame.)
@@ -65,7 +70,56 @@ shinyServer(
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
 ####### LOGGER #############################
-    logger <- reactiveValues(log=list());
+    sessid <- as.numeric(Sys.time())*1e8
+    logger <- reactiveValues(log=list())
+    
+    # Whenever ANYTHING happens, a log entry is created
+    observe({
+      # reactiveValuesToList takes a reactiveValues object
+      # and turns it into a list which is immediately turned
+      # into a data.frame and saved in local scope.
+      if(!exists('gsout')) return()
+      logentry <- data.frame(reactiveValuesToList(input))
+      # Add a timestamp
+      logentry$a00_ts <- Sys.time()
+      # Insert it into the growing list of one-row data.frames
+      # Which has to be a reactiveValue so that it will not be
+      # static at runtime.
+      isolate(logger$log[[length(logger$log)+1]]<-logentry)
+    });
+    
+    writeLog <- function(){
+      # This function runs after the user closes their browser
+      # window. It rbinds all the log entries collected during
+      # the session and sends them off to Google Docs, (if 
+      # a valid gsout object if found in the environment).
+      if(exists('gsout')){
+        # rbindAllCols is a function defined in TABSIEHelpers.R
+        # it turns all those single-row data.frames into one
+        # data.frame, and smartly sorts out missing columns
+        logtable <- isolate(do.call(rbindAllCols,logger$log))
+        # each session has its own ID, just in case
+        logtable$session <- sessid
+        # authenticate
+        gs_auth(gsout$token,cache=F)
+        # create a fresh sheet handle, gsh
+        gsh<-gs_title(gsout$gsfile$sheet_title)
+        # find out what row to add (yes, really)
+        rows<-gs_read(gsh,col_names='',range='A1:A1')[[1]]
+        # immediately update, to reduce chance of collisions
+        # note how we keep refreshing the gsh handle each time we write
+        gsh<-gs_edit_cells(gsh,"S1",input=nrow(logtable)+rows+2,anchor='A1')
+        # add log data. Note that header row automatically is added
+        gsh<-gs_edit_cells(gsh,"S1",input=logtable,anchor=paste0('A',rows))
+        # log written! Empty out logger
+        isolate(logger$log<-list())
+      }
+      #browser()
+    }
+    
+    endsession <- session$onSessionEnded(writeLog)
+    # someday soon maybe:
+    #options(error=function(){browser()})
     
 ####### TITLE VIEWER  ######################
     output$TitleString <-renderUI({
