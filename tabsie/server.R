@@ -6,6 +6,7 @@ require(e1071);
 require(psy);
 require(digest);
 require(googlesheets);
+require(Amelia);
 source("TABSIEHelpers.R")
 source("graphHelper.R")
 
@@ -44,8 +45,10 @@ shinyServer(
         #if we do have filters loaded, add them to the select.
         updateSelectInput(session, inputId = "filter", choices = serverDataDic, selected = serverDataDic[1])
         updateSelectInput(session, inputId = "filterCon", choices = serverDataDic, selected = serverDataDic[1])
+        updateSelectInput(session, inputId = "filterMiss", choices = serverDataDic, selected = serverDataDic[1])
         toggle(id = "filterFlagDiv", anim= FALSE)
         toggle(id = "filterFlagDivCon", anim= FALSE)
+        toggle(id = "filterFlagDivMiss", anim= FALSE)
       }
       if(!exists("serverHash")){
         serverHash = ""
@@ -340,6 +343,13 @@ shinyServer(
         
       }
     })#END PLOT constellationPlot
+    
+    output$missingMap <- renderPlot({
+      pdata = getpData(input$filterMiss, serverDataDic, serverData);
+      for(ii in valsFactor) pdata[[ii]][pdata[[ii]]=='']<-NA;
+      missmap(pdata,col=c('white','lightblue'));
+    }) #END PLOT missingMap
+    
 ######### RENDER TABLES ###########################################    
     output$freqTable <- renderTable({#validation done before this is called, no need to repeat
       if (!valAuth) return;#break processing of not authorized.

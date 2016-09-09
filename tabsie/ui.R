@@ -137,8 +137,15 @@ shinyUI(
           mainPanel(
             plotOutput("constellationPlot",height="800px")
           )#end constellation mainpanel
-        ))#End sidbarLayout/TabPanel CONSTELLATIONS
-      
+        )),#End sidbarLayout/TabPanel CONSTELLATIONS
+######### MISSING VALUES ########################################################################
+        tabPanel("Missing Values",sidebarLayout(
+          sidebarPanel(fluidRow(# MISSING VALUES
+            shinyjs::hidden(div(id="filterFlagDivMiss",
+                                selectInput("filterMiss","Filter",c("No Filter"),"No Filter")
+            )))), # end missing values sidebar
+          mainPanel(plotOutput("missingMap",height="800px"))
+        )) # END MISSING VALUES
       ),#end tabsetPanel
     HTML('<footer><center> <hr>TABSIE v1.2.0, GPL v2 2016.</br> Authors: Laura Manuel, Alex Bokov, and the CIRD team.<br/>For more information, please contact <a href="mailto:informatics@uthscsa.edu">informatics@uthscsa.edu</a></center></footer>')
     )#end fluidPage
