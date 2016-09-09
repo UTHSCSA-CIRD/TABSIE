@@ -70,7 +70,7 @@ shinyServer(
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
 ####### LOGGER #############################
-    sessid <- as.numeric(Sys.time())*1e8
+    sessid <- as.character(as.numeric(Sys.time())*1e10)
     logger <- reactiveValues(log=list())
     
     # Whenever ANYTHING happens, a log entry is created
