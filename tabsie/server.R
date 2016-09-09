@@ -363,11 +363,13 @@ shinyServer(
       }
     },rownames=T)
     
-    output$lmTable <- renderTable({
-      if (!valAuth) return;#break processing of not authorized.
-      pdata = getpData(input$filter, serverDataDic, serverData)
-      summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
-    })
+    # Nothing currently displays lmTable, so commenting it out
+    # (though might want to start displaying later, so not deleting)
+    #output$lmTable <- renderTable({
+    #  if (!valAuth) return;#break processing of not authorized.
+    #  pdata = getpData(input$filter, serverDataDic, serverData)
+    #  summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
+    #})
     
 ########## Authentication Reactive #########
     observeEvent(input$authButton,{
