@@ -132,6 +132,19 @@ shinyServer(
         eval(serverStatement)
       }
     })
+####### SYNCHRONIZE FILTERS ################
+    observeEvent(input$filter,{
+      validate(need(session,""),need(input$filter,""),need(input$filterCon,""));
+      if(!input$filter %in% c("","No Filter"))
+        updateSelectInput(session, inputId = "filterCon",selected = input$filter);
+    })
+    
+    observeEvent(input$filterCon,{
+      validate(need(session,""),need(input$filter,""),need(input$filterCon,""));
+      if(!input$filterCon %in% c("","No Filter"))
+        updateSelectInput(session, inputId = "filter",selected = input$filterCon);
+    })
+    
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
       #if (!valAuth) return;#break processing of not authorized.
