@@ -77,3 +77,53 @@ nprep <- function(xx,data.frame=T){
   if(data.frame) data.frame(xxinput) else xxinput;
 }
 
+rbindAllCols <- function(...){
+  # take data-frames with possibly differently-named columns and 
+  # rbind them anyway so that the resulting data.frame has the union
+  # of the colums (but same-named columns will aligned with each other)
+  dfs <- list(...)
+  # this is the union 
+  allcs <- sort(unique(unlist(sapply(dfs,names))))
+  dfs <- lapply(dfs,function(xx) {
+    xx[,setdiff(allcs,names(xx))]<-NA
+    xx[,allcs]
+    })
+  do.call(rbind,dfs)
+}
+
+make_gs <- function(input=rbind(1:col_extent,1:col_extent),title='defaultlog'
+                    ,ws_title=c('S1','S2'),col_extent=200,savefile='gs'){
+  # everything you need to create credentials for googlesheets
+  # Note: requires a browser to be present; will prompt you to
+  # log into Google and give permissions
+  # move the resulting rdata file to where app is to be deployed, and load it
+  # You will get list object named gsout
+  # Do the following: 
+  # gs_auth(gsout$token,cache=F)
+  # Now you can do:
+  # gs_add_row(gsout$gskey, input = c(1,2,3))
+  gsout <- list();
+  # create token
+  token <- gs_auth(cache = F);
+  # create new gs spreadsheet
+  gsfile <- gs_new(title=title,ws_title = ws_title[1]
+                  ,col_extent = col_extent,input=input);
+  gskey <- gs_key(gsfile$sheet_key,lookup=F,visibility = 'private');
+  # not completely sure, but think this is needed to "break in" the sheet"
+  # Also, we will be using the first cell of the second sheet to keep track
+  # of which row should be where data gets appended next (though right now
+  # we are using the first cell of the first sheet because, learning curve
+  if(length(ws_title)>1){
+    for(ii in ws_title[-1]) gskey <- gs_ws_new(ss=gskey,ws=ii);
+    gskey<-gs_edit_cells(gskey,ws=ii,anchor='A1',input=1);
+  }
+  gskey <- gs_add_row(ss=gskey,ws=ws_title[1],input=1);
+  # save the token
+  saveRDS(token,file=paste0(savefile,'.rds'));
+  # save the token and handle
+  gsout <- list(token=token,gsfile=gsfile,gskey=gskey);
+  save(gsout,file=paste0(savefile,'.rdata'));
+  # return token and handle
+  invisible(gsout);
+  #gs_add_row(gsnew,input=c(baz[3,]))
+}
