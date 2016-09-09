@@ -69,6 +69,20 @@ shinyServer(
     }
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
+
+####### POINT SELECTOR (BRUSH) #############
+    xylim <- reactiveValues(xx = NULL, yy = NULL)
+    observeEvent(input$visPlot_dblclick, {
+      brush <- input$visPlot_brush;
+      if (!is.null(brush)) {
+        xylim$xx <- c(brush$xmin, brush$xmax);
+        xylim$yy <- c(brush$ymin, brush$ymax);
+      } else {
+        xylim$xx <- NULL; xylim$yy <- NULL;
+      }
+    });
+    
+    
 ####### LOGGER #############################
     sessid <- as.numeric(Sys.time())*1e8
     logger <- reactiveValues(log=list())
@@ -315,9 +329,11 @@ shinyServer(
       }
       p = addTheme(p, input)
       if(input$coordFlop){
-        p + coord_flip()
+        # unfortunately, the way coord_flip() is implemented, we cannot support 
+        # zooming properly with it enabled. 
+        p + coord_flip() + coord_cartesian(xlim=xylim$xx,ylim=xylim$yy)
       }else{
-        p
+        p + coord_cartesian(xlim=xylim$xx,ylim=xylim$yy)
       }
     })#end output$visPlot
     

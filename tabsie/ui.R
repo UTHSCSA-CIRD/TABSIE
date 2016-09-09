@@ -82,7 +82,8 @@ shinyUI(
   ######### MAIN PANEL- Graph #####################################################################
             mainPanel(
               bsAlert("graphError"),
-              plotOutput("visPlot"),hr(),
+              plotOutput("visPlot",dblclick = "visPlot_dblclick",brush=brushOpts(id="visPlot_brush",resetOnNew = T)),
+              tags$i('You can zoom in on any region of this plot by clicking and dragging and then double clicking inside the area you selected. You can un-zoom by double-clicking anywhere on the graph without selecting anything.'),hr(),
               a(id="toggleIdea", "Jot down notes and ideas for publication", href ="#"),
               shinyjs::hidden(div(id="ideaDiv",
                                   tags$textarea(id="ideaInput","",cols=60,value="",
