@@ -81,14 +81,16 @@ shinyServer(
       # reactiveValuesToList takes a reactiveValues object
       # and turns it into a list which is immediately turned
       # into a data.frame and saved in local scope.
-      if(!exists('gsout')) return()
-      logentry <- data.frame(reactiveValuesToList(input))
-      # Add a timestamp
-      logentry$a00_ts <- Sys.time()
-      # Insert it into the growing list of one-row data.frames
-      # Which has to be a reactiveValue so that it will not be
-      # static at runtime.
-      isolate(logger$log[[length(logger$log)+1]]<-logentry)
+      #if(!exists('gsout')) return()
+      if(exists('gsout')){
+        logentry <- data.frame(reactiveValuesToList(input))
+        # Add a timestamp
+        logentry$a00_ts <- Sys.time()
+        # Insert it into the growing list of one-row data.frames
+        # Which has to be a reactiveValue so that it will not be
+        # static at runtime.
+        isolate(logger$log[[length(logger$log)+1]]<-logentry)
+      }
     });
     
     writeLog <- function(){
