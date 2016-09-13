@@ -84,7 +84,7 @@ shinyServer(
     
     
 ####### LOGGER #############################
-    sessid <- as.numeric(Sys.time())*1e8
+    sessid <- as.character(as.numeric(Sys.time())*1e8)
     logger <- reactiveValues(log=list())
     
     # Whenever ANYTHING happens, a log entry is created
@@ -92,14 +92,19 @@ shinyServer(
       # reactiveValuesToList takes a reactiveValues object
       # and turns it into a list which is immediately turned
       # into a data.frame and saved in local scope.
-      if(!exists('gsout')) return()
-      logentry <- data.frame(reactiveValuesToList(input))
-      # Add a timestamp
-      logentry$a00_ts <- Sys.time()
-      # Insert it into the growing list of one-row data.frames
-      # Which has to be a reactiveValue so that it will not be
-      # static at runtime.
-      isolate(logger$log[[length(logger$log)+1]]<-logentry)
+      if(exists('gsout')) {
+        # capture TABSIE's state
+        inputs <- reactiveValuesToList(input);
+        # exclude all null values and then coerce to row-matrix
+        # so it can then be coerced to data.frame
+        logentry <- data.frame(rbind(inputs[!sapply(inputs,is.null)]));
+        # Add a timestamp
+        logentry$a00_ts <- as.character(Sys.time())
+        # Insert it into the growing list of one-row data.frames
+        # Which has to be a reactiveValue so that it will not be
+        # static at runtime.
+        isolate(logger$log[[length(logger$log)+1]]<-logentry)
+      }
     });
     
     writeLog <- function(){
@@ -378,13 +383,7 @@ shinyServer(
         #as.table(sapply(pdata[,c(input$xVal,input$yVal)],fpSummary))
       }
     },rownames=T)
-    
-    output$lmTable <- renderTable({
-      if (!valAuth) return;#break processing of not authorized.
-      pdata = getpData(input$filter, serverDataDic, serverData)
-      summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
-    })
-    
+
 ########## Authentication Reactive #########
     observeEvent(input$authButton,{
       ##processes authentication.
