@@ -73,7 +73,7 @@ shinyServer(
     valAuth = FALSE ## is the current session authenticated?
     authAttempts = 0 ## refuses authentication attempts after 10 attempts per session.
 ####### LOGGER #############################
-    sessid <- as.numeric(Sys.time())*1e8
+    sessid <- as.character(as.numeric(Sys.time())*1e10)
     logger <- reactiveValues(log=list())
     
     # Whenever ANYTHING happens, a log entry is created
@@ -137,6 +137,19 @@ shinyServer(
         eval(serverStatement)
       }
     })
+####### SYNCHRONIZE FILTERS ################
+    observeEvent(input$filter,{
+      validate(need(session,""),need(input$filter,""),need(input$filterCon,""));
+      if(!input$filter %in% c("","No Filter"))
+        updateSelectInput(session, inputId = "filterCon",selected = input$filter);
+    })
+    
+    observeEvent(input$filterCon,{
+      validate(need(session,""),need(input$filter,""),need(input$filterCon,""));
+      if(!input$filterCon %in% c("","No Filter"))
+        updateSelectInput(session, inputId = "filter",selected = input$filterCon);
+    })
+    
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
       #if (!valAuth) return;#break processing of not authorized.
@@ -375,11 +388,13 @@ shinyServer(
       }
     },rownames=T)
     
-    output$lmTable <- renderTable({
-      if (!valAuth) return;#break processing of not authorized.
-      pdata = getpData(input$filter, serverDataDic, serverData)
-      summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
-    })
+    # Nothing currently displays lmTable, so commenting it out
+    # (though might want to start displaying later, so not deleting)
+    #output$lmTable <- renderTable({
+    #  if (!valAuth) return;#break processing of not authorized.
+    #  pdata = getpData(input$filter, serverDataDic, serverData)
+    #  summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
+    #})
     
 ########## Authentication Reactive #########
     observeEvent(input$authButton,{
