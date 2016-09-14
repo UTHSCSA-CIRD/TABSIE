@@ -336,7 +336,7 @@ shinyServer(
       if(input$coordFlop){
         # unfortunately, the way coord_flip() is implemented, we cannot support 
         # zooming properly with it enabled. 
-        p + coord_flip() + coord_cartesian(xlim=xylim$xx,ylim=xylim$yy)
+        p + coord_flip(xlim=xylim$xx,ylim=xylim$yy)
       }else{
         p + coord_cartesian(xlim=xylim$xx,ylim=xylim$yy)
       }
