@@ -84,7 +84,7 @@ shinyServer(
     
     
 ####### LOGGER #############################
-    sessid <- as.character(as.numeric(Sys.time())*1e8)
+    sessid <- as.character(as.numeric(Sys.time())*1e10)
     logger <- reactiveValues(log=list())
     
     # Whenever ANYTHING happens, a log entry is created
@@ -94,10 +94,10 @@ shinyServer(
       # into a data.frame and saved in local scope.
       if(exists('gsout')) {
         # capture TABSIE's state
-        inputs <- reactiveValuesToList(input);
+        logentry <- reactiveValuesToList(input);
         # exclude all null values and then coerce to row-matrix
         # so it can then be coerced to data.frame
-        logentry <- data.frame(rbind(inputs[!sapply(inputs,is.null)]));
+        logentry <- data.frame(rbind(logentry[!sapply(logentry,is.null)]));
         # Add a timestamp
         logentry$a00_ts <- as.character(Sys.time())
         # Insert it into the growing list of one-row data.frames
@@ -151,6 +151,19 @@ shinyServer(
         eval(serverStatement)
       }
     })
+####### SYNCHRONIZE FILTERS ################
+    observeEvent(input$filter,{
+      validate(need(session,""),need(input$filter,""),need(input$filterCon,""));
+      if(!input$filter %in% c("","No Filter"))
+        updateSelectInput(session, inputId = "filterCon",selected = input$filter);
+    })
+    
+    observeEvent(input$filterCon,{
+      validate(need(session,""),need(input$filter,""),need(input$filterCon,""));
+      if(!input$filterCon %in% c("","No Filter"))
+        updateSelectInput(session, inputId = "filter",selected = input$filterCon);
+    })
+    
 ####### BUTTON PRESSES #####################
     observeEvent(input$clearTheme, {
       #if (!valAuth) return;#break processing of not authorized.
@@ -384,6 +397,8 @@ shinyServer(
       }
     },rownames=T)
 
+    #  summary(lm(pdata[,input$yVal] ~ pdata[,input$xVal]))
+    #})
 ########## Authentication Reactive #########
     observeEvent(input$authButton,{
       ##processes authentication.
