@@ -72,6 +72,9 @@ shinyServer(
 
 ####### POINT SELECTOR (BRUSH) #############
     xylim <- reactiveValues(xx = NULL, yy = NULL)
+    # clear the coords if plot is rotated
+    observeEvent(input$coordFlop,{xylim$xx <- NULL; xylim$yy <- NULL});
+    # set the new coordinates if area is brushed
     observeEvent(input$visPlot_dblclick, {
       brush <- input$visPlot_brush;
       if (!is.null(brush)) {
@@ -349,7 +352,7 @@ shinyServer(
       if(input$coordFlop){
         # unfortunately, the way coord_flip() is implemented, we cannot support 
         # zooming properly with it enabled. 
-        p + coord_flip(xlim=xylim$xx,ylim=xylim$yy)
+        p + coord_flip(xlim=xylim$yy,ylim=xylim$xx)
       }else{
         p + coord_cartesian(xlim=xylim$xx,ylim=xylim$yy)
       }
